@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Dimensions, Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import moment from "moment";
 
 const { width, height } = Dimensions.get("window");
 
@@ -35,6 +36,7 @@ const features = [
 
 const popularItems = [
     {
+        id: "1",
         username: "Trisha Wushres",
         profile: "https://randomuser.me/api/portraits/women/1.jpg",
         image:
@@ -42,6 +44,7 @@ const popularItems = [
         itemName: "Floral Skirt",
     },
     {
+        id: "2",
         username: "Anna Cris",
         profile: "https://randomuser.me/api/portraits/women/2.jpg",
         image:
@@ -49,6 +52,7 @@ const popularItems = [
         itemName: "Mens Jeans",
     },
     {
+        id: "3",
         username: "Isabella",
         profile: "https://randomuser.me/api/portraits/women/3.jpg",
         image:
@@ -84,10 +88,11 @@ const initialStories = [
     },
 ];
 
+
 const HomeScreen = () => {
 
     const navigation = useNavigation();
-    const [savedOutfits, setSavedOutfits] = useState([]);
+    const [savedOutfits, setSavedOutfits] = useState<Record<string, any>>({});
     const [stories, setStories] = useState(initialStories);
     const [popular, setPopular] = useState(popularItems);
     const [showStory, setShowStory] = useState(false);
@@ -96,6 +101,21 @@ const HomeScreen = () => {
         avatar: string;
         duration: number;
     } | null>(null);
+
+    const generateDates = () => {
+        const today = moment().startOf('day');
+        const dates = [];
+        for (let i = -3; i <= 3; i++) {
+            dates.push({
+                label: today.clone().add(i, 'days').format('ddd. Do MMM'),
+                outfit: i === 1
+            });
+        }
+        return dates;
+    }
+
+    const dates = generateDates();
+    // console.log(generateDates())
     return (
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView className="flex-1 bg-white">
@@ -122,6 +142,82 @@ const HomeScreen = () => {
                                 )}
                             </View>
                             <Text className="text-xs">{story.username}</Text>
+                        </Pressable>
+                    ))}
+                </ScrollView>
+
+                <View className="flex-row justify-between items-center px-4 mt-6">
+                    <Text className="text-lg font-semibold">Your Week</Text>
+                    <Text className="text-gray-500">Planner</Text>
+                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4 pl-4">
+                    {dates.map((day, index) => {
+                        const today = moment().format('ddd, Do MMM');
+                        const outfit = savedOutfits[day.label] || (day.label === today && savedOutfits[today] ? savedOutfits[today] : null);
+                        return (
+                            <View className="mr-3">
+                                <Pressable key={index} onPress={() => navigation.navigate("AddOutfit",{
+                                    date: day.label,
+                                    savedOutfits
+                                })} className={`w-24 h-40 rounded-xl items-center justify-center overflow-hidden ${outfit ? "bg-white" : "bg-gray-50"}`}>
+                                    {!outfit && (
+                                        <View className="w-full h-full items-center justify-center">
+                                            <Text className="text-3xl text-gray-400">+</Text>
+                                        </View>
+                                    )}
+                                    {outfit && (
+                                        <View>
+
+                                        </View>
+                                    )}
+                                </Pressable>
+                                <Text className="text-xs text-gray-700  text-center mt-4">{day.label}</Text>
+                            </View>
+                        )
+                    })}
+                </ScrollView>
+
+                <View className="flex-row flex-wrap justify-between mt-6 px-4">
+                    {features.map((feature, index) => (
+                        <Pressable style={{
+                            elevation: 2,
+                            backgroundColor:['#FFF1F2', '#EFF6FF', '#F0FFF4', '#FFFBEB'][index % 4]
+                        }} key={index} className="w-[48%] h-36 mb-4 rounded-2xl shadow-md overflow-hidden">
+                            <View className="p-3">
+                                <Text className="text-[16px] font-bold text-gray-800">{feature.title}</Text>
+                                <Text className="text-xs text-gray-500 mt-1">{index === 0 ? "Try Outfits Virtually" : index === 1 ? "AI Created new looks" : index === 2 ? "Instant try on" : "Find best colors"}</Text>
+
+                            </View>
+                                <Image style={{
+                                    transform: [
+                                        {
+                                            rotate: "12deg"
+                                        }
+                                    ], opacity: 0.9
+                                }} source={{ uri: feature.image }} className="w-20 h-20 absolute bottom-[-3] right-[-1] rounded-lg" />
+                        </Pressable>
+                    ))}
+                </View>
+
+
+                <View className="flex-row justify-between items-center px-4 mt-6">
+                    <Text className="text-lg font-semibold">Popular this week</Text>
+                    <Text className="text-gray-500">More</Text>
+                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4 pl-4">
+                    {popular.map((item, index) => (
+                        <Pressable key={index} className="mr-4 items-center">
+                            <View className="w-36 mr-4">
+                                <Image source={{ uri: item.image }} className="w-36 h-44 rounded-lg items-center justify-center" />
+                                {/* <Text className="text-xs">{item.itemName}</Text> */}
+                            </View>
+                            <View className="flex-row items-center gap-2 mt-2">
+                                <Image source={{ uri: item.profile }} className="w-6 h-6 rounded-full items-center justify-center" />
+                                <Text className="text-xs font-medium">{item.username}</Text>
+                            </View>
+                            <Text className="text-xs text-gray-500 mt-1">{item.itemName}</Text>
                         </Pressable>
                     ))}
                 </ScrollView>
