@@ -1,5 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
-import { Dimensions, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Dimensions, Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -84,10 +87,47 @@ const initialStories = [
 const HomeScreen = () => {
 
     const navigation = useNavigation();
+    const [savedOutfits, setSavedOutfits] = useState([]);
+    const [stories, setStories] = useState(initialStories);
+    const [popular, setPopular] = useState(popularItems);
+    const [showStory, setShowStory] = useState(false);
+    const [currentStory, setCurrentStory] = useState<{
+        username: string;
+        avatar: string;
+        duration: number;
+    } | null>(null);
     return (
-        <View>
-            <Text>Home</Text>
-        </View>
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView className="flex-1 bg-white">
+                <View className="flex-row justify-between items-center px-4 pt-4">
+                    <Text className="text-3xl font-bold">Fits</Text>
+                    <View className="flex-row items-center gap-3">
+                        <TouchableOpacity className="bg-black px-4 py-1 rounded-full">
+                            <Text className="text-white font-semibold text-sm">Upgrade</Text>
+                        </TouchableOpacity>
+                        <Ionicons name="notifications-outline" size={24} color="black" />
+                        <Ionicons name="search-outline" size={24} color="black" />
+                    </View>
+                </View>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4 pl-4">
+                    {stories.map((story, index) => (
+                        <Pressable key={index} className="mr-4 items-center">
+                            <View>
+                                <Image source={{ uri: story.avatar }} className={`w-16 h-16 rounded-full items-center justify-center relative ${story.viewed ? "border-2 border-gray-200" : "border-2 border-purple-400"}`} />
+                                {story.isOwn && (
+                                    <View className="absolute bottom-0 right-0 bg-black w-5 h-5 rounded-full items-center justify-center">
+                                        <Text className="text-white text-xs">+</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <Text className="text-xs">{story.username}</Text>
+                        </Pressable>
+                    ))}
+                </ScrollView>
+            </ScrollView>
+
+        </SafeAreaView>
     );
 };
 
