@@ -156,7 +156,7 @@ const HomeScreen = () => {
                         const today = moment().format('ddd, Do MMM');
                         const outfit = savedOutfits[day.label] || (day.label === today && savedOutfits[today] ? savedOutfits[today] : null);
                         return (
-                            <View className="mr-3">
+                            <View key={`day-${index}`} className="mr-3">
                                 <Pressable key={index} onPress={() => navigation.navigate("AddOutfit",{
                                     date: day.label,
                                     savedOutfits

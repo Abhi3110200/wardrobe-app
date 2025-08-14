@@ -10,18 +10,29 @@ const AddOutfitScreen = () => {
     const navigation = useNavigation();
     const { date, savedOutfits } = route?.params;
     const popularClothes = [
-        ...pants,
-        ...skirts,
-        ...shoes,
-        ...tops,
-        ...mpants,
-        ...mshirts,
-    ].map((item, index) => ({ ...item, id: index + 1 })).filter((item) => item.image)
+        ...(pants || []),
+        ...(skirts || []),
+        ...(shoes || []),
+        ...(tops || []),
+        ...(mpants || []),
+        ...(mshirts || []),
+    ].map((item, index) => ({ ...item, id: index + 1 })).filter((item) => item?.image)
 
     const [selected, setSelected] = useState<number[]>([])
+
     const toggleSelection = (id: number) => {
         setSelected((prev) => (prev.includes(id) ? prev.filter((id) => id !== id) : [...prev, id]))
     }
+
+    const handleNext = () => {
+        const selectedItems = popularClothes.filter((item) => selected.includes(item?.id));
+        navigation.navigate("DesignRoom", { 
+            selectedItems, 
+            date, 
+            savedOutfits 
+        });
+    }
+
     return (
         <SafeAreaView className="flex-1 bg-white">
             <View className="flex-row items-center justify-between px-4 pt-4">
@@ -69,14 +80,18 @@ const AddOutfitScreen = () => {
             {selected.length > 0 && (
                 <View className="absolute bottom-0 left-0 right-0 bg-white p-3 border-t-2 border-gray-200">
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        {selected?.map((id) => {
+                        {selected?.map((id, index) => {
                             const item = popularClothes.find((clothe) => clothe.id === id);
                             return (
-                                <Image source={{ uri: item?.image }} className="w-16 h-16 rounded-md mr-3" />
+                                <Image 
+                                    key={`selected-${id}-${index}`}
+                                    source={{ uri: item?.image }} 
+                                    className="w-16 h-16 rounded-md mr-3" 
+                                />
                             )
                         })}
                     </ScrollView>
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="bg-black mt-3 items-center self-end py-3 mb-3 rounded-lg w-24">
+                    <TouchableOpacity onPress={handleNext} className="bg-black mt-3 items-center self-end py-3 mb-3 rounded-lg w-24">
                         <Text className="text-white font-semibold">Add Outfit</Text>
                     </TouchableOpacity>
                 </View>
